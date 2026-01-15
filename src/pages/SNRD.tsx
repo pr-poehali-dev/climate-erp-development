@@ -5,6 +5,7 @@ import Dashboard from '@/components/snrd/Dashboard';
 import ApplicationsList from '@/components/snrd/ApplicationsList';
 import { toast } from 'sonner';
 import { Application, WorkOrder, ApplicationStatus, Priority, WorkOrderStatus } from '@/types/snrd';
+import { mockApplications, mockWorkOrders, mockClients, mockEmployees, mockServiceObjects } from '@/data/snrdTestData';
 
 const SNRD = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -12,106 +13,8 @@ const SNRD = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [priorityFilter, setPriorityFilter] = useState('all');
 
-  const [applications, setApplications] = useState<Application[]>([
-    {
-      id: '1',
-      number: 'APP-2026-001',
-      clientId: 'C001',
-      objectId: 'OBJ-101',
-      serviceTypeId: 'ST-001',
-      status: 'Новая',
-      priority: 'Высокий',
-      createdAt: '2026-01-15T08:00:00',
-      slaDeadline: '2026-01-15T20:00:00',
-      description: 'Не работает кондиционер в серверной. Температура +28°C',
-      isEmergency: true,
-    },
-    {
-      id: '2',
-      number: 'APP-2026-002',
-      clientId: 'C002',
-      objectId: 'OBJ-102',
-      serviceTypeId: 'ST-002',
-      status: 'В работе',
-      priority: 'Средний',
-      createdAt: '2026-01-15T09:30:00',
-      plannedStartDate: '2026-01-15T14:00:00',
-      slaDeadline: '2026-01-16T18:00:00',
-      description: 'Плановое ТО системы вентиляции',
-      isEmergency: false,
-    },
-    {
-      id: '3',
-      number: 'APP-2026-003',
-      clientId: 'C001',
-      objectId: 'OBJ-103',
-      serviceTypeId: 'ST-003',
-      status: 'Выполнена',
-      priority: 'Низкий',
-      createdAt: '2026-01-14T10:00:00',
-      plannedStartDate: '2026-01-14T15:00:00',
-      plannedEndDate: '2026-01-14T17:00:00',
-      slaDeadline: '2026-01-16T10:00:00',
-      description: 'Замена фильтров в системе очистки воздуха',
-      isEmergency: false,
-    },
-    {
-      id: '4',
-      number: 'APP-2026-004',
-      clientId: 'C003',
-      objectId: 'OBJ-104',
-      serviceTypeId: 'ST-001',
-      status: 'Новая',
-      priority: 'Срочно',
-      createdAt: '2026-01-15T11:20:00',
-      slaDeadline: '2026-01-15T15:20:00',
-      description: 'Утечка фреона в чиллере',
-      isEmergency: true,
-    },
-    {
-      id: '5',
-      number: 'APP-2026-005',
-      clientId: 'C002',
-      objectId: 'OBJ-105',
-      serviceTypeId: 'ST-002',
-      status: 'В работе',
-      priority: 'Средний',
-      createdAt: '2026-01-14T16:00:00',
-      plannedStartDate: '2026-01-15T10:00:00',
-      slaDeadline: '2026-01-17T16:00:00',
-      description: 'Диагностика системы отопления',
-      isEmergency: false,
-    },
-  ]);
-
-  const [workOrders, setWorkOrders] = useState<WorkOrder[]>([
-    {
-      id: 'WO-001',
-      number: 'WO-2026-001',
-      applicationId: '2',
-      employeeId: 'E001',
-      status: 'В работе',
-      plannedStartTime: '2026-01-15T14:00:00',
-      plannedEndTime: '2026-01-15T18:00:00',
-      actualStartTime: '2026-01-15T14:15:00',
-      tasks: [],
-      photos: [],
-      notes: '',
-    },
-    {
-      id: 'WO-002',
-      number: 'WO-2026-002',
-      applicationId: '5',
-      employeeId: 'E002',
-      status: 'В пути',
-      plannedStartTime: '2026-01-15T10:00:00',
-      plannedEndTime: '2026-01-15T13:00:00',
-      actualStartTime: '2026-01-15T10:05:00',
-      tasks: [],
-      photos: [],
-      notes: '',
-    },
-  ]);
+  const [applications, setApplications] = useState<Application[]>(mockApplications);
+  const [workOrders, setWorkOrders] = useState<WorkOrder[]>(mockWorkOrders);
 
   const getStatusColor = (status: ApplicationStatus | WorkOrderStatus): string => {
     switch (status) {
