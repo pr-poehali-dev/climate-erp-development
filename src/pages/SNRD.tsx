@@ -3,6 +3,9 @@ import SNRDSidebar from '@/components/snrd/SNRDSidebar';
 import SNRDHeader from '@/components/snrd/SNRDHeader';
 import Dashboard from '@/components/snrd/Dashboard';
 import ApplicationsList from '@/components/snrd/ApplicationsList';
+import EmployeesList from '@/components/snrd/EmployeesList';
+import ClientsList from '@/components/snrd/ClientsList';
+import ServiceObjectsList from '@/components/snrd/ServiceObjectsList';
 import ApplicationModal from '@/components/snrd/ApplicationModal';
 import EmployeeModal from '@/components/snrd/EmployeeModal';
 import ClientModal from '@/components/snrd/ClientModal';
@@ -13,9 +16,15 @@ import { mockApplications, mockWorkOrders, mockClients, mockEmployees, mockServi
 
 const SNRD = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
+  
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [priorityFilter, setPriorityFilter] = useState('all');
+  const [typeFilter, setTypeFilter] = useState('all');
+  
+  const [employeeSearchQuery, setEmployeeSearchQuery] = useState('');
+  const [clientSearchQuery, setClientSearchQuery] = useState('');
+  const [objectSearchQuery, setObjectSearchQuery] = useState('');
 
   const [applications, setApplications] = useState<Application[]>(mockApplications);
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>(mockWorkOrders);
@@ -288,22 +297,56 @@ const SNRD = () => {
 
       case 'employees':
         return (
-          <div className="p-8">
-            <div className="bg-teal-50 border border-teal-200 rounded-lg p-6 text-center">
-              <h3 className="text-lg font-semibold text-teal-900 mb-2">Выездные сотрудники</h3>
-              <p className="text-teal-700">Справочник сотрудников с типом найма "Сотрудник компании"</p>
-            </div>
-          </div>
+          <EmployeesList
+            employees={employees}
+            onEdit={(emp) => {
+              setEditingEmployee(emp);
+              setEmployeeModalOpen(true);
+            }}
+            onDelete={(id) => {
+              setEmployees(employees.filter(e => e.id !== id));
+              toast.success('Сотрудник удален');
+            }}
+            searchQuery={employeeSearchQuery}
+            setSearchQuery={setEmployeeSearchQuery}
+          />
         );
 
       case 'clients':
         return (
-          <div className="p-8">
-            <div className="bg-pink-50 border border-pink-200 rounded-lg p-6 text-center">
-              <h3 className="text-lg font-semibold text-pink-900 mb-2">Клиенты</h3>
-              <p className="text-pink-700">База клиентов и управление их объектами обслуживания</p>
-            </div>
-          </div>
+          <ClientsList
+            clients={clients}
+            onEdit={(client) => {
+              setEditingClient(client);
+              setClientModalOpen(true);
+            }}
+            onDelete={(id) => {
+              setClients(clients.filter(c => c.id !== id));
+              toast.success('Клиент удален');
+            }}
+            searchQuery={clientSearchQuery}
+            setSearchQuery={setClientSearchQuery}
+          />
+        );
+
+      case 'service-objects':
+        return (
+          <ServiceObjectsList
+            serviceObjects={serviceObjects}
+            clients={clients}
+            onEdit={(obj) => {
+              setEditingServiceObject(obj);
+              setServiceObjectModalOpen(true);
+            }}
+            onDelete={(id) => {
+              setServiceObjects(serviceObjects.filter(o => o.id !== id));
+              toast.success('Объект удален');
+            }}
+            searchQuery={objectSearchQuery}
+            setSearchQuery={setObjectSearchQuery}
+            typeFilter={typeFilter}
+            setTypeFilter={setTypeFilter}
+          />
         );
 
       case 'scheduled-maintenance':

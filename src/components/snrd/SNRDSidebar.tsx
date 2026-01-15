@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import Icon from '@/components/ui/icon';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
@@ -7,6 +8,7 @@ interface SNRDSidebarProps {
 }
 
 const SNRDSidebar = ({ activeTab, setActiveTab }: SNRDSidebarProps) => {
+  const [expandedGroups, setExpandedGroups] = useState<string[]>(['works', 'directories']);
   const menuItems = [
     { id: 'dashboard', label: 'Главная', icon: 'LayoutDashboard' },
     { 
@@ -88,38 +90,54 @@ const SNRDSidebar = ({ activeTab, setActiveTab }: SNRDSidebarProps) => {
 
       <ScrollArea className="flex-1 p-4">
         <nav className="space-y-1">
-          {menuItems.map((item) => (
-            <div key={item.id}>
-              <button
-                onClick={() => setActiveTab(item.children ? item.children[0].id : item.id)}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                  activeTab === item.id || (item.children && item.children.some(c => c.id === activeTab))
-                    ? 'bg-blue-50 text-blue-700'
-                    : 'text-gray-600 hover:bg-gray-50'
-                }`}
-              >
-                <Icon name={item.icon} size={18} />
-                {item.label}
-              </button>
-              {item.children && (
-                <div className="ml-4 mt-1 space-y-1">
-                  {item.children.map((child) => (
-                    <button
-                      key={child.id}
-                      onClick={() => setActiveTab(child.id)}
-                      className={`w-full flex items-center px-4 py-2 rounded-lg text-sm transition-all ${
-                        activeTab === child.id
-                          ? 'bg-blue-50 text-blue-700 font-medium'
-                          : 'text-gray-500 hover:bg-gray-50'
-                      }`}
-                    >
-                      {child.label}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
+          {menuItems.map((item) => {
+            const isExpanded = expandedGroups.includes(item.id);
+            const isActive = activeTab === item.id || (item.children && item.children.some(c => c.id === activeTab));
+            
+            return (
+              <div key={item.id}>
+                <button
+                  onClick={() => {
+                    if (item.children) {
+                      if (isExpanded) {
+                        setExpandedGroups(expandedGroups.filter(g => g !== item.id));
+                      } else {
+                        setExpandedGroups([...expandedGroups, item.id]);
+                      }
+                    } else {
+                      setActiveTab(item.id);
+                    }
+                  }}
+                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                    isActive ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <Icon name={item.icon} size={18} />
+                  <span className="flex-1 text-left">{item.label}</span>
+                  {item.children && (
+                    <Icon name={isExpanded ? 'ChevronDown' : 'ChevronRight'} size={16} />
+                  )}
+                </button>
+                {item.children && isExpanded && (
+                  <div className="ml-4 mt-1 space-y-1">
+                    {item.children.map((child) => (
+                      <button
+                        key={child.id}
+                        onClick={() => setActiveTab(child.id)}
+                        className={`w-full flex items-center px-4 py-2 rounded-lg text-sm transition-all ${
+                          activeTab === child.id
+                            ? 'bg-blue-50 text-blue-700 font-medium'
+                            : 'text-gray-500 hover:bg-gray-50'
+                        }`}
+                      >
+                        {child.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </nav>
       </ScrollArea>
 
