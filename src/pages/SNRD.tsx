@@ -6,6 +6,14 @@ import ApplicationsList from '@/components/snrd/ApplicationsList';
 import EmployeesList from '@/components/snrd/EmployeesList';
 import ClientsList from '@/components/snrd/ClientsList';
 import ServiceObjectsList from '@/components/snrd/ServiceObjectsList';
+import WorkOrdersList from '@/components/snrd/WorkOrdersList';
+import ContractsList from '@/components/snrd/ContractsList';
+import ApplicationDraftsList from '@/components/snrd/ApplicationDraftsList';
+import WorkDraftsList from '@/components/snrd/WorkDraftsList';
+import AssignExecutors from '@/components/snrd/AssignExecutors';
+import AutoPlanning from '@/components/snrd/AutoPlanning';
+import ScheduledMaintenance from '@/components/snrd/ScheduledMaintenance';
+import Reports from '@/components/snrd/Reports';
 import ApplicationModal from '@/components/snrd/ApplicationModal';
 import EmployeeModal from '@/components/snrd/EmployeeModal';
 import ClientModal from '@/components/snrd/ClientModal';
@@ -25,6 +33,8 @@ const SNRD = () => {
   const [employeeSearchQuery, setEmployeeSearchQuery] = useState('');
   const [clientSearchQuery, setClientSearchQuery] = useState('');
   const [objectSearchQuery, setObjectSearchQuery] = useState('');
+  const [workOrderSearchQuery, setWorkOrderSearchQuery] = useState('');
+  const [workOrderStatusFilter, setWorkOrderStatusFilter] = useState('all');
 
   const [applications, setApplications] = useState<Application[]>(mockApplications);
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>(mockWorkOrders);
@@ -236,64 +246,44 @@ const SNRD = () => {
         );
 
       case 'application-drafts':
-        return (
-          <div className="p-8">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
-              <h3 className="text-lg font-semibold text-blue-900 mb-2">Черновики заявок</h3>
-              <p className="text-blue-700">Заявки с ошибками из внешних систем будут отображаться здесь</p>
-            </div>
-          </div>
-        );
+        return <ApplicationDraftsList />;
 
       case 'work-orders':
         return (
-          <div className="p-8">
-            <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
-              <h3 className="text-lg font-semibold text-green-900 mb-2">Наряды</h3>
-              <p className="text-green-700">Список нарядов для сотрудников компании ({workOrders.length} активных)</p>
-            </div>
-          </div>
+          <WorkOrdersList
+            workOrders={workOrders}
+            employees={employees}
+            getStatusColor={getStatusColor}
+            getPriorityColor={getPriorityColor}
+            onEdit={(order) => console.log('Edit order', order)}
+            onDelete={(id) => {
+              setWorkOrders(workOrders.filter(w => w.id !== id));
+              toast.success('Наряд удален');
+            }}
+            searchQuery={workOrderSearchQuery}
+            setSearchQuery={setWorkOrderSearchQuery}
+            statusFilter={workOrderStatusFilter}
+            setStatusFilter={setWorkOrderStatusFilter}
+          />
         );
 
       case 'contracts':
-        return (
-          <div className="p-8">
-            <div className="bg-purple-50 border border-purple-200 rounded-lg p-6 text-center">
-              <h3 className="text-lg font-semibold text-purple-900 mb-2">Подряды</h3>
-              <p className="text-purple-700">Работы для подрядчиков</p>
-            </div>
-          </div>
-        );
+        return <ContractsList />;
 
       case 'work-drafts':
-        return (
-          <div className="p-8">
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
-              <h3 className="text-lg font-semibold text-yellow-900 mb-2">Черновики работ</h3>
-              <p className="text-yellow-700">Работы, созданные автоматическим планировщиком, ожидают утверждения</p>
-            </div>
-          </div>
-        );
+        return <WorkDraftsList />;
 
       case 'assign-executors':
         return (
-          <div className="p-8">
-            <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-6 text-center">
-              <h3 className="text-lg font-semibold text-indigo-900 mb-2">Назначение исполнителей</h3>
-              <p className="text-indigo-700">Ручное назначение работ на выездных сотрудников с автоматическим подбором</p>
-            </div>
-          </div>
+          <AssignExecutors
+            applications={applications}
+            employees={employees}
+            getPriorityColor={getPriorityColor}
+          />
         );
 
       case 'auto-planning':
-        return (
-          <div className="p-8">
-            <div className="bg-cyan-50 border border-cyan-200 rounded-lg p-6 text-center">
-              <h3 className="text-lg font-semibold text-cyan-900 mb-2">Автоматическое планирование</h3>
-              <p className="text-cyan-700">Массовое создание черновиков работ с помощью алгоритма пчелиной колонии</p>
-            </div>
-          </div>
-        );
+        return <AutoPlanning />;
 
       case 'employees':
         return (
@@ -350,24 +340,10 @@ const SNRD = () => {
         );
 
       case 'scheduled-maintenance':
-        return (
-          <div className="p-8">
-            <div className="bg-violet-50 border border-violet-200 rounded-lg p-6 text-center">
-              <h3 className="text-lg font-semibold text-violet-900 mb-2">Плановое обслуживание</h3>
-              <p className="text-violet-700">Настройка регулярных планово-предупредительных работ (ППР)</p>
-            </div>
-          </div>
-        );
+        return <ScheduledMaintenance />;
 
       case 'reports':
-        return (
-          <div className="p-8">
-            <div className="bg-fuchsia-50 border border-fuchsia-200 rounded-lg p-6 text-center">
-              <h3 className="text-lg font-semibold text-fuchsia-900 mb-2">Отчеты и аналитика</h3>
-              <p className="text-fuchsia-700">Сводная отчетность по различным срезам данных</p>
-            </div>
-          </div>
-        );
+        return <Reports />;
 
       default:
         return (
