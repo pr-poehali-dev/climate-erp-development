@@ -3,9 +3,13 @@ import SNRDSidebar from '@/components/snrd/SNRDSidebar';
 import SNRDHeader from '@/components/snrd/SNRDHeader';
 import Dashboard from '@/components/snrd/Dashboard';
 import ApplicationsList from '@/components/snrd/ApplicationsList';
+import ApplicationModal from '@/components/snrd/ApplicationModal';
+import EmployeeModal from '@/components/snrd/EmployeeModal';
+import ClientModal from '@/components/snrd/ClientModal';
+import ServiceObjectModal from '@/components/snrd/ServiceObjectModal';
 import { toast } from 'sonner';
-import { Application, WorkOrder, ApplicationStatus, Priority, WorkOrderStatus } from '@/types/snrd';
-import { mockApplications, mockWorkOrders, mockClients, mockEmployees, mockServiceObjects } from '@/data/snrdTestData';
+import { Application, WorkOrder, ApplicationStatus, Priority, WorkOrderStatus, Employee, Client, ServiceObject } from '@/types/snrd';
+import { mockApplications, mockWorkOrders, mockClients, mockEmployees, mockServiceObjects, mockServiceTypes } from '@/data/snrdTestData';
 
 const SNRD = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -15,6 +19,19 @@ const SNRD = () => {
 
   const [applications, setApplications] = useState<Application[]>(mockApplications);
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>(mockWorkOrders);
+  const [employees, setEmployees] = useState<Employee[]>(mockEmployees);
+  const [clients, setClients] = useState<Client[]>(mockClients);
+  const [serviceObjects, setServiceObjects] = useState<ServiceObject[]>(mockServiceObjects);
+
+  const [applicationModalOpen, setApplicationModalOpen] = useState(false);
+  const [employeeModalOpen, setEmployeeModalOpen] = useState(false);
+  const [clientModalOpen, setClientModalOpen] = useState(false);
+  const [serviceObjectModalOpen, setServiceObjectModalOpen] = useState(false);
+  
+  const [editingApplication, setEditingApplication] = useState<Application | null>(null);
+  const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
+  const [editingClient, setEditingClient] = useState<Client | null>(null);
+  const [editingServiceObject, setEditingServiceObject] = useState<ServiceObject | null>(null);
 
   const getStatusColor = (status: ApplicationStatus | WorkOrderStatus): string => {
     switch (status) {
@@ -57,16 +74,127 @@ const SNRD = () => {
   };
 
   const handleCreateNew = () => {
-    toast.info('Модальное окно создания в разработке');
+    switch (activeTab) {
+      case 'applications':
+        setEditingApplication(null);
+        setApplicationModalOpen(true);
+        break;
+      case 'employees':
+        setEditingEmployee(null);
+        setEmployeeModalOpen(true);
+        break;
+      case 'clients':
+        setEditingClient(null);
+        setClientModalOpen(true);
+        break;
+      case 'service-objects':
+        setEditingServiceObject(null);
+        setServiceObjectModalOpen(true);
+        break;
+      default:
+        toast.info('Создание элемента для этого раздела в разработке');
+    }
   };
 
   const handleEdit = (app: Application) => {
-    toast.info(`Редактирование заявки ${app.number}`);
+    setEditingApplication(app);
+    setApplicationModalOpen(true);
   };
 
   const handleDelete = (id: string) => {
     setApplications(applications.filter(a => a.id !== id));
     toast.success('Заявка удалена');
+  };
+
+  const handleSaveApplication = (appData: Partial<Application>) => {
+    if (editingApplication) {
+      setApplications(applications.map(a => a.id === editingApplication.id ? { ...editingApplication, ...appData } : a));
+      toast.success('Заявка обновлена');
+    } else {
+      const newApp: Application = {
+        id: `APP-${Date.now()}`,
+        number: appData.number || `APP-${Date.now().toString().slice(-6)}`,
+        clientId: appData.clientId!,
+        objectId: appData.objectId!,
+        serviceTypeId: appData.serviceTypeId!,
+        status: appData.status || 'Новая',
+        priority: appData.priority || 'Средний',
+        createdAt: appData.createdAt || new Date().toISOString(),
+        slaDeadline: appData.slaDeadline || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+        description: appData.description!,
+        isEmergency: appData.isEmergency || false,
+        plannedStartDate: appData.plannedStartDate,
+        plannedEndDate: appData.plannedEndDate,
+      };
+      setApplications([...applications, newApp]);
+      toast.success('Заявка создана');
+    }
+  };
+
+  const handleSaveEmployee = (empData: Partial<Employee>) => {
+    if (editingEmployee) {
+      setEmployees(employees.map(e => e.id === editingEmployee.id ? { ...editingEmployee, ...empData } : e));
+      toast.success('Данные сотрудника обновлены');
+    } else {
+      const newEmp: Employee = {
+        id: empData.id || `E${Date.now().toString().slice(-3)}`,
+        fullName: empData.fullName!,
+        position: empData.position!,
+        phone: empData.phone!,
+        email: empData.email!,
+        status: empData.status || 'На смене',
+        competencies: empData.competencies || [],
+        workSchedule: empData.workSchedule || '5/2',
+        employmentType: empData.employmentType || 'Сотрудник компании',
+        territory: empData.territory || '',
+        workGroup: empData.workGroup || '',
+        licensed: empData.licensed || false,
+      };
+      setEmployees([...employees, newEmp]);
+      toast.success('Сотрудник добавлен');
+    }
+  };
+
+  const handleSaveClient = (clientData: Partial<Client>) => {
+    if (editingClient) {
+      setClients(clients.map(c => c.id === editingClient.id ? { ...editingClient, ...clientData } : c));
+      toast.success('Данные клиента обновлены');
+    } else {
+      const newClient: Client = {
+        id: clientData.id || `C${Date.now().toString().slice(-3)}`,
+        name: clientData.name!,
+        contactPerson: clientData.contactPerson!,
+        phone: clientData.phone!,
+        email: clientData.email!,
+        contract: clientData.contract || 'Активен',
+        slaAgreement: clientData.slaAgreement || `SLA-${Date.now().toString().slice(-3)}`,
+        objectsCount: clientData.objectsCount || 0,
+        assetsCount: clientData.assetsCount || 0,
+      };
+      setClients([...clients, newClient]);
+      toast.success('Клиент добавлен');
+    }
+  };
+
+  const handleSaveServiceObject = (objData: Partial<ServiceObject>) => {
+    if (editingServiceObject) {
+      setServiceObjects(serviceObjects.map(o => o.id === editingServiceObject.id ? { ...editingServiceObject, ...objData } : o));
+      toast.success('Объект обслуживания обновлен');
+    } else {
+      const newObj: ServiceObject = {
+        id: objData.id || `OBJ-${Date.now().toString().slice(-4)}`,
+        name: objData.name!,
+        type: objData.type || 'Локация',
+        clientId: objData.clientId!,
+        address: objData.address!,
+        coordinates: objData.coordinates,
+        parentId: objData.parentId,
+        assignedEmployees: objData.assignedEmployees || [],
+        timezone: objData.timezone || 'Europe/Moscow',
+      };
+      setServiceObjects([...serviceObjects, newObj]);
+      toast.success('Объект обслуживания добавлен');
+    }
   };
 
   const renderContent = () => {
@@ -221,6 +349,52 @@ const SNRD = () => {
         />
         {renderContent()}
       </main>
+
+      <ApplicationModal
+        open={applicationModalOpen}
+        onClose={() => {
+          setApplicationModalOpen(false);
+          setEditingApplication(null);
+        }}
+        onSave={handleSaveApplication}
+        application={editingApplication}
+        clients={clients}
+        serviceObjects={serviceObjects}
+        serviceTypes={mockServiceTypes}
+      />
+
+      <EmployeeModal
+        open={employeeModalOpen}
+        onClose={() => {
+          setEmployeeModalOpen(false);
+          setEditingEmployee(null);
+        }}
+        onSave={handleSaveEmployee}
+        employee={editingEmployee}
+      />
+
+      <ClientModal
+        open={clientModalOpen}
+        onClose={() => {
+          setClientModalOpen(false);
+          setEditingClient(null);
+        }}
+        onSave={handleSaveClient}
+        client={editingClient}
+      />
+
+      <ServiceObjectModal
+        open={serviceObjectModalOpen}
+        onClose={() => {
+          setServiceObjectModalOpen(false);
+          setEditingServiceObject(null);
+        }}
+        onSave={handleSaveServiceObject}
+        serviceObject={editingServiceObject}
+        clients={clients}
+        employees={employees}
+        serviceObjects={serviceObjects}
+      />
     </div>
   );
 };
