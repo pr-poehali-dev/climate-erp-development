@@ -3,9 +3,10 @@ import Icon from '@/components/ui/icon';
 
 interface HeaderProps {
   activeTab: string;
+  onCreateNew: () => void;
 }
 
-const Header = ({ activeTab }: HeaderProps) => {
+const Header = ({ activeTab, onCreateNew }: HeaderProps) => {
   return (
     <header className="bg-white border-b border-gray-200 px-8 py-4">
       <div className="flex items-center justify-between">
@@ -25,7 +26,7 @@ const Header = ({ activeTab }: HeaderProps) => {
             <Icon name="Download" size={16} className="mr-2" />
             Экспорт
           </Button>
-          <Button size="sm">
+          <Button size="sm" onClick={onCreateNew}>
             <Icon name="Plus" size={16} className="mr-2" />
             Создать
           </Button>

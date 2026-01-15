@@ -18,6 +18,12 @@ interface TabContentProps {
   warehouse: Array<{ id: number; name: string; quantity: number; min: number; price: number; supplier: string }>;
   getStatusColor: (status: string) => string;
   getPriorityColor: (priority: string) => string;
+  onEdit: (item: any, type: string) => void;
+  onDelete: (id: any, type: string) => void;
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
+  statusFilter: string;
+  setStatusFilter: (filter: string) => void;
 }
 
 const TabContent = ({
@@ -31,6 +37,12 @@ const TabContent = ({
   warehouse,
   getStatusColor,
   getPriorityColor,
+  onEdit,
+  onDelete,
+  searchQuery,
+  setSearchQuery,
+  statusFilter,
+  setStatusFilter,
 }: TabContentProps) => {
   return (
     <div className="p-8">
@@ -150,16 +162,21 @@ const TabContent = ({
               <div className="flex items-center justify-between">
                 <CardTitle>Все заказы</CardTitle>
                 <div className="flex gap-2">
-                  <Input placeholder="Поиск по клиенту..." className="w-64" />
-                  <Select defaultValue="all">
+                  <Input 
+                    placeholder="Поиск по клиенту..." 
+                    className="w-64" 
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
                     <SelectTrigger className="w-40">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">Все статусы</SelectItem>
-                      <SelectItem value="new">Новый</SelectItem>
-                      <SelectItem value="progress">В работе</SelectItem>
-                      <SelectItem value="completed">Завершен</SelectItem>
+                      <SelectItem value="Новый">Новый</SelectItem>
+                      <SelectItem value="В работе">В работе</SelectItem>
+                      <SelectItem value="Завершен">Завершен</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -194,9 +211,14 @@ const TabContent = ({
                         <Badge className={getPriorityColor(order.priority)}>{order.priority}</Badge>
                       </TableCell>
                       <TableCell>
-                        <Button variant="ghost" size="sm">
-                          <Icon name="Eye" size={16} />
-                        </Button>
+                        <div className="flex gap-1">
+                          <Button variant="ghost" size="sm" onClick={() => onEdit(order, 'order')}>
+                            <Icon name="Edit" size={16} />
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={() => onDelete(order.id, 'order')}>
+                            <Icon name="Trash2" size={16} />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -238,12 +260,12 @@ const TabContent = ({
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <div className="flex gap-2">
-                          <Button variant="ghost" size="sm">
-                            <Icon name="Eye" size={16} />
+                        <div className="flex gap-1">
+                          <Button variant="ghost" size="sm" onClick={() => onEdit(client, 'client')}>
+                            <Icon name="Edit" size={16} />
                           </Button>
-                          <Button variant="ghost" size="sm">
-                            <Icon name="Building2" size={16} />
+                          <Button variant="ghost" size="sm" onClick={() => onDelete(client.id, 'client')}>
+                            <Icon name="Trash2" size={16} />
                           </Button>
                         </div>
                       </TableCell>
@@ -293,9 +315,14 @@ const TabContent = ({
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Button variant="ghost" size="sm">
-                          <Icon name="FileText" size={16} />
-                        </Button>
+                        <div className="flex gap-1">
+                          <Button variant="ghost" size="sm" onClick={() => onEdit(service, 'service')}>
+                            <Icon name="Edit" size={16} />
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={() => onDelete(service.id, 'service')}>
+                            <Icon name="Trash2" size={16} />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -322,6 +349,7 @@ const TabContent = ({
                     <TableHead>Цена</TableHead>
                     <TableHead>Поставщик</TableHead>
                     <TableHead>Статус</TableHead>
+                    <TableHead>Действия</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -342,6 +370,16 @@ const TabContent = ({
                         ) : (
                           <Badge className="bg-green-100 text-green-700">В наличии</Badge>
                         )}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-1">
+                          <Button variant="ghost" size="sm" onClick={() => onEdit(item, 'warehouse')}>
+                            <Icon name="Edit" size={16} />
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={() => onDelete(item.id, 'warehouse')}>
+                            <Icon name="Trash2" size={16} />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
